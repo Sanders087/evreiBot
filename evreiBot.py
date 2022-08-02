@@ -15,8 +15,7 @@ import os
 import json
 
 #Token
-TOKEN = "ODgxMzA5NjE1MzY1NjkzNDUy.GQ8vW0.ierq_pEylyo97Y2HXmZZ05dMzkTrbkaFdlcynI"
-
+TOKEN = "ODgxMzA5NjE1MzY1NjkzNDUy.Gm7YqU.R8DyTW6-hycjSa9YYO7Wz0C6JHqqv-UPlZKkOA"
 
 
 #Prefix
@@ -421,9 +420,13 @@ async def slowmode(ctx, seconds : int):
 @bot.command()
 async def send(ctx, *, message):
     channel = bot.get_channel(998732205184536646)
-    await ctx.message.delete()
-    await ctx.send(message)
-    await channel.send(f"{ctx.author.mention} сказал: **{message}**")
+    if "@everyone" or "@here" or "@member" or "@Administartion" in message:
+        await ctx.send(f"Get the fuck out of here {ctx.author.mention}")
+        await channel.send(f"{ctx.author.mention} попытался сказать: **{message}**")
+    else:
+        await ctx.message.delete()
+        await ctx.send(message)
+        await channel.send(f"{ctx.author.mention} сказал: **{message}**")
 
 
 
@@ -720,7 +723,7 @@ async def bank(ctx, amount : amount_converter = None):
                 await ctx.send(embed=bankEmbed)
                 return False
 
-        if amount > users[str(user.id)]["Wallet"]:
+        if amount > users[str(user.id)]["Wallet"] or amount < 0:
             bankEmbed = discord.Embed(color = discord.Colour.from_rgb(232, 56, 56), title=f"You haven't got money to deposit")
         else:
             bankEmbed = discord.Embed(color = discord.Colour.from_rgb(155, 242, 206), title=f"You deposit {amount} coins on your bank account")
@@ -750,7 +753,7 @@ async def getmoney(ctx, amount : amount_converter = None):
             bankEmbed.set_author(name=ctx.author.name, icon_url=ctx.author.avatar)
             await ctx.send(embed=bankEmbed)
             return False
-    if amount > users[str(user.id)]["Bank"]:
+    if amount > users[str(user.id)]["Bank"] or amount < 0:
         bankEmbed = discord.Embed(color = discord.Colour.from_rgb(232, 56, 56), title=f"You haven't got money to do it")
     else:
         bankEmbed = discord.Embed(color = discord.Colour.from_rgb(155, 242, 206), title=f"You put {amount} coins in wallet from your bank account")
@@ -793,35 +796,6 @@ async def crime(ctx, member : discord.Member):
 
 
 
-@bot.command(aliases=['lb'])
-async def leaderboard(ctx, leaders : int = 10):
-    users = await get_bank_data()
-
-    leader_board = {}
-    total = []
-    for user in users:
-        name = int(user)
-        total_amount = users[user]["Wallet"] + users[user]["Bank"]
-        leader_board[total_amount] = name
-        total.append(total_amount)
-
-    total = sorted(total, reverse = True)
-    
-    liderboardEmbed = discord.Embed(title = f"Top {leaders} reachest people", color = discord.Colour.from_rgb(155, 242, 206))
-    
-    index = 1
-    for amt in total:
-        id_ = leader_board[amt]
-        mem = bot.get_user(id_)
-        name = mem.name
-        liderboardEmbed.add_field(name=f"{index}. {name}", value = f"{amt}", inline = False)
-        
-        if index == users:
-            break
-        else:
-            index += 1
-
-    await ctx.send(embed=liderboardEmbed)
 
 
 
