@@ -64,6 +64,11 @@ async def on_member_join(member):
     role = guild.get_role(881556162296836187)
     await member.add_roles(role)
 
+@bot.event
+async def on_member_remove(member):
+    channel = bot.get_channel(881312815820980277)
+    await channel.send(f"{member} left.")
+
 
 
 serverLink = "https://discord.gg/fK7wDDHX"
@@ -109,7 +114,7 @@ async def help(ctx, arg=None):
         embed.add_field(name="Neural Networks 🧠", value="`dalle` `deepdream` `imagemix` `color`", inline=False)
         embed.add_field(name="Moderation ⚔️", value=" `clear` `giverole` `removerole` `kick` `ban` `unban` `multiban` `multikick` `slowmode` ", inline=False)
         embed.add_field(name="Utilities 🥢", value="`avatar` `dm` `publicate` `send` `vanga` `se`", inline=False)
-        embed.add_field(name="Economy 🎰", value="`balance` `slut` `dep` `with` `cash` `crime`", inline=False)
+        embed.add_field(name="Economy 🎰", value="`balance` `slut` `dep` `with` `cash` `rob`", inline=False)
         embed.set_footer(text="EvreiBot © 2022 All rights reserved ")
         await ctx.send(embed=embed)
 
@@ -420,7 +425,13 @@ async def slowmode(ctx, seconds : int):
 @bot.command()
 async def send(ctx, *, message):
     channel = bot.get_channel(998732205184536646)
-    if "@everyone" or "@here" or "@member" or "@Administartion" in message:
+    if "@everyone" in message:
+        await ctx.send(f"Get the fuck out of here {ctx.author.mention}")
+        await channel.send(f"{ctx.author.mention} попытался сказать: **{message}**")
+    elif "@member" in message:
+        await ctx.send(f"Get the fuck out of here {ctx.author.mention}")
+        await channel.send(f"{ctx.author.mention} попытался сказать: **{message}**")
+    elif "@here" in message:
         await ctx.send(f"Get the fuck out of here {ctx.author.mention}")
         await channel.send(f"{ctx.author.mention} попытался сказать: **{message}**")
     else:
@@ -769,29 +780,35 @@ async def getmoney(ctx, amount : amount_converter = None):
 
 
 @bot.command()
-async def crime(ctx, member : discord.Member):
-    await open_account(ctx.author)
+async def rob(ctx, member : discord.Member):
+    if member == ctx.author:
+        crimeEmbed = discord.Embed(color = discord.Colour.from_rgb(232, 56, 56), title="You can't rob yourself")
+        crimeEmbed.set_author(name=ctx.author.name, icon_url=ctx.author.avatar)
+        await ctx.send(embed=crimeEmbed)
+    else:
+        await open_account(ctx.author)
 
-    user = ctx.author
+        user = ctx.author
 
-    users = await get_bank_data()
-    chance = random.randrange(1, 3)
-    money = random.randrange(300, 1000)
-    if chance == 1:
-        crimePhrases = [f"You got caught by the police, pay {money} coins to bride it", f"You got caught by the Matrix. -{money} coins. RUN SUKA RUN"]
-        crimeEmbed = discord.Embed(color = discord.Colour.from_rgb(232, 56, 56), title=random.choice(crimePhrases))
-        users[str(user.id)]["Wallet"] -= money
+        users = await get_bank_data()
+        chance = random.randrange(1, 3)
+        money = random.randrange(300, 1000)
+        if chance == 1:
+            crimePhrases = [f"You got caught by the police, pay {money} coins to bride it", f"You got caught by the Matrix. -{money} coins. RUN SUKA RUN"]
+            crimeEmbed = discord.Embed(color = discord.Colour.from_rgb(232, 56, 56), title=random.choice(crimePhrases))
+            users[str(user.id)]["Wallet"] -= money
 
-    elif chance == 2:
-        crimePhrases = [f"You robbed {member.name}, you got {money} coins", f"You're a fucking vandal, take your {money} coins"]
-        crimeEmbed = discord.Embed(color = discord.Colour.from_rgb(155, 242, 206), title=random.choice(crimePhrases))
-        users[str(user.id)]["Wallet"] += money
-        users[str(member.id)]["Wallet"] -= money
+        elif chance == 2:
+            crimePhrases = [f"You robbed {member.name}, you got {money} coins", f"You're a fucking vandal, take your {money} coins"]
+            crimeEmbed = discord.Embed(color = discord.Colour.from_rgb(155, 242, 206), title=random.choice(crimePhrases))
+            users[str(user.id)]["Wallet"] += money
+            users[str(member.id)]["Wallet"] -= money
+        crimeEmbed.set_author(name=ctx.author.name, icon_url=ctx.author.avatar)
 
-    await ctx.send(embed=crimeEmbed)
+        await ctx.send(embed=crimeEmbed)
 
-    with open("bank.json", 'w') as f:
-        json.dump(users, f)
+        with open("bank.json", 'w') as f:
+            json.dump(users, f)
 
 
 
