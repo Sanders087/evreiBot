@@ -2,6 +2,7 @@
 # encoding: utf-8\
 
 
+from urllib import response
 import aiohttp
 import asyncio
 import requests
@@ -9,13 +10,12 @@ import discord
 from discord.ext import commands
 from discord.ui import View, Button
 import random
-from discord_components import Button, Select, SelectOption, ComponentsBot
 import time
 import os
 import json
 
 #Token
-TOKEN = "ODgxMzA5NjE1MzY1NjkzNDUy.Gm7YqU.R8DyTW6-hycjSa9YYO7Wz0C6JHqqv-UPlZKkOA"
+TOKEN = "ODgxMzA5NjE1MzY1NjkzNDUy.GECsQD.xK24qv78cxSgAB41cskIak0AWB_YV9rzsT5sOk"
 
 
 #Prefix
@@ -36,6 +36,20 @@ url_dalle = 'https://api.deepai.org/api/text2img'
 channelForAnswers = 000000000
 
 #commands
+
+
+@bot.event
+async def on_raw_reaction_add(payload):
+    ourMessageID = 1005442134951858256
+    channel = bot.get_channel(1001420521633742908)
+    if ourMessageID == payload.message_id:
+        member = payload.member
+        guild = member.guild
+        role = guild.get_role(1005442308021440513)
+        emoji = payload.emoji.name
+        channel1 = bot.get_channel(1005443996933443695)
+        if emoji == '✅':
+            await channel1.send(member.id)
 
 
 @bot.event
@@ -114,7 +128,7 @@ async def help(ctx, arg=None):
         embed.add_field(name="Neural Networks 🧠", value="`dalle` `deepdream` `imagemix` `color`", inline=False)
         embed.add_field(name="Moderation ⚔️", value=" `clear` `giverole` `removerole` `kick` `ban` `unban` `multiban` `multikick` `slowmode` ", inline=False)
         embed.add_field(name="Utilities 🥢", value="`avatar` `dm` `publicate` `send` `vanga` `se`", inline=False)
-        embed.add_field(name="Economy 🎰", value="`balance` `slut` `dep` `with` `cash` `rob`", inline=False)
+        embed.add_field(name="Economy 🎰", value="`balance` `slut` `dep` `with` `cash` `rob` `matrix-fight` `buy-matrix`", inline=False)
         embed.set_footer(text="EvreiBot © 2022 All rights reserved ")
         await ctx.send(embed=embed)
 
@@ -143,11 +157,33 @@ async def rules(ctx):
     embed.add_field(name="⠀", value="`4.` Мат не запрещается, но рекомендуется использовать его в небольших количествах.", inline=False)
     embed.add_field(name="⠀", value="`5.` Запрещен пиар без разрешения администрации. ", inline=False)
     embed.add_field(name="⠀", value="`6.` Запрещено злоупотреблять пингами.", inline=False)
-    embed.add_field(name="⠀", value="`7.` Адекватность приветствуется.", inline=False)
-    embed.add_field(name="⠀", value="`8.` Если у вас есть идея для сервера/бота, `!idea текст идеи` для рассмотрения в <#969908226873249842>", inline=False)
-    embed.add_field(name="⠀", value="`9.` Все члены сообщества равны в исполнении правил.", inline=False)
-    embed.add_field(name="⠀", value="`10.` За конфликт в чате будут наказаны все участники.", inline=False)
+    embed.add_field(name="⠀", value="`7.` Все члены сообщества равны в исполнении правил.", inline=False)
+    embed.add_field(name="⠀", value="`8.` За конфликт в чате будут наказаны все участники.", inline=False)
+    embed.add_field(name="⠀", value="`9.` Запрещена провокация участников.", inline=False)
     await ctx.send(embed=embed)
+
+
+@bot.command()
+async def shake(ctx, role : discord.Role):
+    mmbrs = []
+    for rl in role.members:
+        mmbrs.append(rl.mention)
+    random.shuffle(mmbrs)
+    members = "```"
+    for i in range(1, len(mmbrs)):
+        
+        if i % 2 == 0:
+            members = members + mmbrs[i] + "\n"
+        else:
+            members = members + mmbrs[i] + " "
+        
+    members = members + mmbrs[0]
+    members = members + "```"
+
+    await ctx.send(members)
+
+
+
 
 
 @bot.command()
@@ -622,6 +658,8 @@ async def open_account(user):
         users[str(user.id)] = {}
         users[str(user.id)]["Wallet"] = 0
         users[str(user.id)]["Bank"] = 0
+        users[str(user.id)]["Cock"] = False
+        users[str(user.id)]["Chance"] = 50
 
     with open("bank.json", 'w') as f:
         json.dump(users, f)
@@ -634,7 +672,7 @@ async def get_bank_data():
         users = json.load(f)
     return users
 
-@bot.command(aliases=['balance'])
+@bot.command(aliases=['balance', ' balance', ' bal'])
 async def bal(ctx, member : discord.Member = None):
     if member == None:
         member = ctx.author
@@ -654,7 +692,7 @@ async def bal(ctx, member : discord.Member = None):
     await ctx.send(embed=embedBalance)
 
 
-@bot.command()
+@bot.command(aliases=[' work', ' cash', 'work'])
 async def cash(ctx):
     await open_account(ctx.author)
 
@@ -664,10 +702,10 @@ async def cash(ctx):
 
     earn = random.randrange(200, 1000)
 
-    phrasesCash = [f"Someone gave your {earn} coins", f"You founded {earn} coins", f"You found a wallet with {earn} coins",
-              f"Something wonderfuckable is beigned and the large pigeon gave you {earn} coins", f"Your cat has won a Nobel Prize. Get rewarded with {earn} coins", 
-              f"Matrix decided to eat you, but ALL Perfect stopped him. You got {earn} coins", f"Shit, there is a flying gay. You filmed it on video and got {earn} coins", 
-              f"Flying shark tried to eat you, but you was faster and ran away. Take {earn} coins"]
+    phrasesCash = [f"Someone gave your <:dogecoin:998652603011444836> {earn} coins", f"You founded <:dogecoin:998652603011444836> {earn} coins", f"You found a wallet with <:dogecoin:998652603011444836> {earn} coins",
+              f"Something wonderfuckable is beigned and the large pigeon gave you <:dogecoin:998652603011444836> {earn} coins", f"Your cat has won a Nobel Prize. Get rewarded with <:dogecoin:998652603011444836> {earn} coins", 
+              f"Matrix decided to eat you, but ALL Perfect stopped him. You got <:dogecoin:998652603011444836> {earn} coins", f"Shit, there is a flying gay. You filmed it on video and got <:dogecoin:998652603011444836> {earn} coins", 
+              f"Flying shark tried to eat you, but you was faster and ran away. Take <:dogecoin:998652603011444836> {earn} coins"]
 
     cashEmbed = discord.Embed(color = discord.Colour.from_rgb(155, 242, 206), title=random.choice(phrasesCash))
     
@@ -681,7 +719,7 @@ async def cash(ctx):
         json.dump(users, f)
 
 
-@bot.command()
+@bot.command(aliases=[' slut'])
 async def slut(ctx):
     await open_account(ctx.author)
 
@@ -693,12 +731,12 @@ async def slut(ctx):
     chance = random.randrange(1, 3)
     money = random.randrange(1000, 5000)
     if chance == 1:
-        slutPhrases = [f"You jerked off {money} coins", f"Your asshole is so expensive, take {money} coins", f"Your ass earned {money} coins, be happy"]
+        slutPhrases = [f"You jerked off <:dogecoin:998652603011444836> {money} coins", f"Your asshole is so expensive, take <:dogecoin:998652603011444836> {money} coins", f"Your ass earned <:dogecoin:998652603011444836> {money} coins, be happy"]
         slutEmbed = discord.Embed(color = discord.Colour.from_rgb(155, 242, 206), title=random.choice(slutPhrases))
         users[str(user.id)]["Wallet"] += money
     else:
-        slutPhrases = [f"You got pierced in the head with a dick, pay {round(money/3)} coins for treatment", f"You was ordered by Matrix, pay {round(money/3)} for moral healing",
-                      f"You was fucked to death, pay {round(money/3)} coins for your funeral"]
+        slutPhrases = [f"You got pierced in the head with a dick, pay <:dogecoin:998652603011444836> {round(money/3)} coins for treatment", f"You was ordered by Matrix, pay <:dogecoin:998652603011444836> {round(money/3)} for moral healing",
+                      f"You was fucked to death, pay <:dogecoin:998652603011444836> {round(money/3)} coins for your funeral"]
         slutEmbed = discord.Embed(color = discord.Colour.from_rgb(232, 56, 56), title=random.choice(slutPhrases))
         users[str(user.id)]["Wallet"] -= round(money/3)
 
@@ -719,7 +757,7 @@ def amount_converter(amount):
 
 
 @bot.command(aliases=['dep'])
-async def bank(ctx, amount : amount_converter = None):
+async def deposit(ctx, amount : amount_converter = None):
         await open_account(ctx.author)
 
         user = ctx.author
@@ -737,7 +775,7 @@ async def bank(ctx, amount : amount_converter = None):
         if amount > users[str(user.id)]["Wallet"] or amount < 0:
             bankEmbed = discord.Embed(color = discord.Colour.from_rgb(232, 56, 56), title=f"You haven't got money to deposit")
         else:
-            bankEmbed = discord.Embed(color = discord.Colour.from_rgb(155, 242, 206), title=f"You deposit {amount} coins on your bank account")
+            bankEmbed = discord.Embed(color = discord.Colour.from_rgb(155, 242, 206), title=f"You deposit <:dogecoin:998652603011444836> {amount} coins on your bank account")
             users[str(user.id)]["Wallet"] -= amount
             users[str(user.id)]["Bank"] += amount
     
@@ -751,7 +789,7 @@ async def bank(ctx, amount : amount_converter = None):
 
 
 @bot.command(aliases=['with'])
-async def getmoney(ctx, amount : amount_converter = None):
+async def withdraw(ctx, amount : amount_converter = None):
     await open_account(ctx.author)
 
     user = ctx.author
@@ -767,7 +805,7 @@ async def getmoney(ctx, amount : amount_converter = None):
     if amount > users[str(user.id)]["Bank"] or amount < 0:
         bankEmbed = discord.Embed(color = discord.Colour.from_rgb(232, 56, 56), title=f"You haven't got money to do it")
     else:
-        bankEmbed = discord.Embed(color = discord.Colour.from_rgb(155, 242, 206), title=f"You put {amount} coins in wallet from your bank account")
+        bankEmbed = discord.Embed(color = discord.Colour.from_rgb(155, 242, 206), title=f"You put <:dogecoin:998652603011444836> {amount} coins in wallet from your bank account")
         users[str(user.id)]["Wallet"] += amount
         users[str(user.id)]["Bank"] -= amount
     
@@ -779,7 +817,7 @@ async def getmoney(ctx, amount : amount_converter = None):
         json.dump(users, f)
 
 
-@bot.command()
+@bot.command(aliases=[' rob'])
 async def rob(ctx, member : discord.Member):
     if member == ctx.author:
         crimeEmbed = discord.Embed(color = discord.Colour.from_rgb(232, 56, 56), title="You can't rob yourself")
@@ -794,12 +832,12 @@ async def rob(ctx, member : discord.Member):
         chance = random.randrange(1, 3)
         money = random.randrange(300, 1000)
         if chance == 1:
-            crimePhrases = [f"You got caught by the police, pay {money} coins to bride it", f"You got caught by the Matrix. -{money} coins. RUN SUKA RUN"]
+            crimePhrases = [f"You got caught by the police, pay <:dogecoin:998652603011444836> {money} coins to bride it", f"You got caught by the Matrix. Minus <:dogecoin:998652603011444836> {money} coins. RUN SUKA RUN"]
             crimeEmbed = discord.Embed(color = discord.Colour.from_rgb(232, 56, 56), title=random.choice(crimePhrases))
             users[str(user.id)]["Wallet"] -= money
 
         elif chance == 2:
-            crimePhrases = [f"You robbed {member.name}, you got {money} coins", f"You're a fucking vandal, take your {money} coins"]
+            crimePhrases = [f"You robbed {member.name}, you got <:dogecoin:998652603011444836> {money} coins", f"You're a fucking vandal, take your <:dogecoin:998652603011444836> {money} coins"]
             crimeEmbed = discord.Embed(color = discord.Colour.from_rgb(155, 242, 206), title=random.choice(crimePhrases))
             users[str(user.id)]["Wallet"] += money
             users[str(member.id)]["Wallet"] -= money
@@ -815,8 +853,201 @@ async def rob(ctx, member : discord.Member):
 
 
 
+@bot.command(aliases=['buy-matrix', ' buy-matrix'])
+async def bm(ctx):
+    await open_account(ctx.author)
+
+    user = ctx.author
+
+    users = await get_bank_data()
+
+    if users[str(user.id)]["Wallet"] < 1000:
+        bmEmbed = discord.Embed(title="You don't have the <:dogecoin:998652603011444836> coins to buy the Matrix. Sorry sight", color = discord.Colour.from_rgb(232, 56, 56))
+    elif users[str(user.id)]["Cock"] == True:
+        bmEmbed = discord.Embed(title="You already have a Matrix. Use `matrix-fight` to use it", color = discord.Colour.from_rgb(232, 56, 56))
+    else:
+        bmEmbed = discord.Embed(title="You bought a Matrix. Be happy. Use `matrix-fight` to use it", color = discord.Colour.from_rgb(155, 242, 206))
+        users[str(user.id)]["Wallet"] -= 1000
+        users[str(user.id)]["Cock"] = True
+
+    bmEmbed.set_author(name=ctx.author.name, icon_url=ctx.author.avatar)
+
+    await ctx.send(embed=bmEmbed)
 
 
+    with open("bank.json", 'w') as f:
+        json.dump(users, f)
+
+
+
+
+@bot.command(aliases=['matrix-fight'])
+async def mf(ctx, amount : amount_converter = None):
+    await open_account(ctx.author)
+
+    user = ctx.author
+
+    users = await get_bank_data()
+    if users[str(user.id)]["Cock"] == False:
+        mfEmbed = discord.Embed(title="You don't have a matrix. Use `buy-matrix` to get it", color = discord.Colour.from_rgb(232, 56, 56))
+    else:
+        if amount == "all":
+            amount = amount_converter(users[str(user.id)]["Wallet"])
+        if amount < 100:
+            mfEmbed = discord.Embed(title="Minimal bet is <:dogecoin:998652603011444836> 100 coins", color = discord.Colour.from_rgb(232, 56, 56))
+            return False
+        else:
+            if amount > users[str(user.id)]["Wallet"]:
+                mfEmbed = discord.Embed(title="You don't have money to cockfight", color = discord.Colour.from_rgb(232, 56, 56))
+            else:
+                chance = random.randrange(1, 101)
+                if chance < users[str(user.id)]["Chance"]:
+                    mfEmbed = discord.Embed(title=f"You won <:dogecoin:998652603011444836> {amount} coins", color = discord.Colour.from_rgb(155, 242, 206))
+                    users[str(user.id)]["Wallet"] += amount
+                    users[str(user.id)]["Chance"] += 1
+                else:
+                    mfEmbed = discord.Embed(title=f"You lost <:dogecoin:998652603011444836> {amount} coins", color = discord.Colour.from_rgb(232, 56, 56))
+                    users[str(user.id)]["Wallet"] -= amount
+                    users[str(user.id)]["Cock"] = False
+                    users[str(user.id)]["Chance"] = 50
+
+            
+    chnc = users[str(user.id)]["Chance"]
+    mfEmbed.set_author(name=ctx.author.name, icon_url=ctx.author.avatar)
+    mfEmbed.set_footer(text=f"Your chance for winning is {chnc}%")
+
+    await ctx.send(embed=mfEmbed)
+
+
+    with open("bank.json", 'w') as f:
+        json.dump(users, f)
+
+
+
+@bot.command()
+async def osh(ctx):
+    await ctx.message.delete()
+    button_accept = Button(label="Accept", style = discord.ButtonStyle.green, emoji="🎁")
+    button_reject = Button(label="Reject", style = discord.ButtonStyle.red, emoji="🎁")
+    
+    async def button_accept_callback(interaction):
+        await interaction.response.edit_message(content="I love you ❤", view=None)
+
+    async def button_reject_callback(interaction):
+        await interaction.response.edit_message(content="Get the fuck out of here", view=None)
+        #await interaction.followup.send("🙂")
+
+    button_accept.callback = button_accept_callback
+    button_reject.callback = button_reject_callback
+
+    view = View()
+    view.add_item(button_accept)
+    view.add_item(button_reject)
+
+    await ctx.send("Hey", view=view)
+
+
+@bot.command(aliases=['russian-roulette'])
+async def rr(ctx, member : discord.Member, amount : amount_converter = None):
+    await open_account(ctx.author)
+
+    user = ctx.author
+
+    users = await get_bank_data()
+
+
+    if users[str(member.id)]["Wallet"] < 5000:
+        rrEmbed = discord.Embed(color = discord.Colour.from_rgb(232, 56, 56), title=f"{member.name} don't have <:dogecoin:998652603011444836> 10000 coins")
+        rrEmbed.set_author(name=ctx.author.name, icon_url=ctx.author.avatar)
+        await ctx.send(embed=rrEmbed)
+        return False
+    elif users[str(user.id)]["Wallet"] < 5000:
+        rrEmbed = discord.Embed(color = discord.Colour.from_rgb(232, 56, 56), title=f"You don't have <:dogecoin:998652603011444836> 10000 coins")
+        rrEmbed.set_author(name=ctx.author.name, icon_url=ctx.author.avatar)
+        await ctx.send(embed=rrEmbed)
+        return False
+    if amount == "all":
+        amount = amount_converter(users[str(user.id)]["Wallet"])
+
+    if users[str(member.id)]["Wallet"] < amount or users[str(user.id)]["Wallet"] < amount:
+        rrEmbed = discord.Embed(color = discord.Colour.from_rgb(232, 56, 56), title=f"You don't have money to do it")
+        rrEmbed.set_author(name=ctx.author.name, icon_url=ctx.author.avatar)
+        await ctx.send(embed=rrEmbed)
+        return False
+
+    button_accept = Button(label="Accept roulette", style = discord.ButtonStyle.green)
+    button_reject = Button(label="Reject roulette", style = discord.ButtonStyle.red)
+
+    
+    rrEmbed = discord.Embed(color = discord.Colour.from_rgb(155, 242, 206), title=f"{member.name}, wanna play russian roulette with {ctx.author.name}?")
+    rrEmbed.add_field(value=f"**<:dogecoin:998652603011444836> {amount} coins**", inline=False, name = "The Bet:")
+    rrEmbed.set_author(name=ctx.author.name, icon_url=ctx.author.avatar)
+    amount = amount
+    async def button_accept_callback(interaction):
+        if member == interaction.user:
+            await interaction.response.edit_message(content=f"**Fight! {member.name} VS {ctx.author.name}**", view=None)
+            choice = random.randrange(1, 3)
+            if choice == 1:
+                rrrEmbed = discord.Embed(color = discord.Colour.from_rgb(155, 242, 206), title=f"{member.name} won! Take your <:dogecoin:998652603011444836> {amount} coins")
+                rrEmbed.set_author(name=member, icon_url=member.avatar)
+                users[str(member.id)]["Wallet"] += amount
+                users[str(ctx.author.id)]["Wallet"] -= amount
+            else:
+                rrrEmbed = discord.Embed(color = discord.Colour.from_rgb(155, 242, 206), title=f"{ctx.author.name} won! Take your <:dogecoin:998652603011444836> {amount} coins")
+                users[str(member.id)]["Wallet"] -= amount
+                users[str(ctx.author.id)]["Wallet"] += amount
+                rrEmbed.set_author(name=ctx.author.name, icon_url=ctx.author.avatar)
+            
+            with open("bank.json", 'w') as f:
+                json.dump(users, f)
+
+            await ctx.send(embed=rrrEmbed)
+
+        
+    async def button_reject_callback(interaction):
+        if member == interaction.user:
+            await interaction.response.edit_message(content=f"❌ {member.name} rejected russian roulette game", view=None)
+
+
+
+    button_accept.callback = button_accept_callback
+    button_reject.callback = button_reject_callback
+
+    view = View()
+    view.add_item(button_accept)
+    view.add_item(button_reject)
+
+    await ctx.send(embed=rrEmbed, view=view)
+
+
+@bot.command(aliases = ["lb"])
+async def leaderboard(ctx,x: int = 10):
+    users = await get_bank_data()
+    leader_board = {}
+    total = []
+    for user in users:
+        name = int(user)
+        total_amount = users[user]["Wallet"] + users[user]["Bank"]
+        leader_board[total_amount] = name
+        total.append(total_amount)
+
+    total = sorted(total, reverse=True)
+
+    em = discord.Embed(title=f"Top {x} Richest People", color = discord.Colour.from_rgb(155, 242, 206))
+    index = 1
+    for amt in total:
+        id_ = leader_board[amt]
+        member = await ctx.guild.fetch_member(id_) #your existing line
+        if member is None:
+            raise ValueError(f"Member with id {id_} not found")
+        name = member.name
+        em.add_field(name=f"{index}. {name}", value=f"{amt}", inline=False)
+        if index == x:
+            break
+        else:
+            index += 1
+    await ctx.send(embed=em)
+
+    
 
 bot.run(TOKEN)
-
