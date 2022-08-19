@@ -2,6 +2,7 @@
 # encoding: utf-8\
 
 
+from asyncio.base_futures import _format_callbacks
 from urllib import response
 import aiohttp
 import asyncio
@@ -11,11 +12,12 @@ from discord.ext import commands
 from discord.ui import View, Button
 import random
 import time
-import os
 import json
+import numpy as np
+import datetime
 
 #Token
-TOKEN = "ODgxMzA5NjE1MzY1NjkzNDUy.GECsQD.xK24qv78cxSgAB41cskIak0AWB_YV9rzsT5sOk"
+TOKEN = ""
 
 
 #Prefix
@@ -62,12 +64,90 @@ async def on_message(message):
     await bot.process_commands(message)
 
 
+
+
+
+phrasesChoice = ["Ставлю на кон свою жопу, что это", "Великая печь подсказывает, что это", "Сила огня выбирает"]
+phrasesHowmany = ["Матрикс выбрал", "Летающие геи сказали мне, что это в районе", "Огромный голубь нашептал число"]
+elsePhrases = ["Че нахуй?", "Возможно", "Я был бы только за", "Однако", "Нет", "Глупый вопрос", "Хочу ебаться...", "ДАААААА", "Я думаю, что да",
+               "Не уверен, но мой огненный опыт подсказывает, что да", "Я помогу с этим"]
+
+phrasesAI = []
+
+@bot.event
+async def on_message(message):
+    msg = message.content
+    if "@" in msg.upper():
+        pass
+    else:
+        if message.channel.id == 881312815820980277 or message.channel.id == 1001420521633742908 or message.guild.id == 766557501801889802 or message.channel.id == 1001356259854930021:
+            if message.author.id != 881309615365693452:
+                if msg in open("wtf.txt").read():
+                    pass
+                else:
+                    with open('wtf.txt', 'a') as file:
+                        file.write(msg + "\n")
+
+    if "евре".upper() in msg.upper() and message.author.id != 881309615365693452:
+        chance = random.randrange(1, 10)
+        if chance < 8:
+            await message.channel.send(random.choice(open('wtf.txt').readlines()))
+        else:
+            database = open('wtf.txt').read()
+            corpus = database.split()
+            def make_pairs(corpus):
+                for i in range(len(corpus)-1):
+                    yield (corpus[i], corpus[i+1])     
+            pairs = make_pairs(corpus)
+            word_dict = {}
+            for word_1, word_2 in pairs:
+                if word_1 in word_dict.keys():
+                    word_dict[word_1].append(word_2)
+                else:
+                    word_dict[word_1] = [word_2]
+            first_word = np.random.choice(corpus)
+            while first_word.islower():
+                first_word = np.random.choice(corpus)
+            chain = [first_word]
+            n_words = random.randrange(1, 7)
+            for i in range(n_words):
+                chain.append(np.random.choice(word_dict[chain[-1]]))
+
+            await message.channel.send(' '.join(chain))
+
+    '''if "евре".upper() in msg.upper():
+
+        if "кого" in msg.lower():
+            randomMember = random.choice(message.channel.guild.members)
+            await message.channel.send(random.choice(phrasesChoice) + f' `{randomMember.name}`')
+        elif "кем" in msg.lower():
+            randomMember = random.choice(message.channel.guild.members)
+            await message.channel.send(random.choice(phrasesChoice) + f' `{randomMember.name}`')
+        elif "кому" in msg.lower():
+            randomMember = random.choice(message.channel.guild.members)
+            await message.channel.send(random.choice(phrasesChoice) + f' `{randomMember.name}`')
+        elif "кто" in msg.lower():
+            randomMember = random.choice(message.channel.guild.members)
+            await message.channel.send(random.choice(phrasesChoice) + f' `{randomMember.name}`')
+        elif "сколько".upper() in msg.upper():
+            await message.channel.send(random.choice(phrasesHowmany) + f' **{random.randint(3, 1000)}**')
+        else:
+            await message.channel.send(random.choice(elsePhrases))'''
+
+
+    await bot.process_commands(message)
+
+
+
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandNotFound ):
         await ctx.send(embed = discord.Embed(description = f"** {ctx.author.name}, the command doesn't exist**", color = discord.Colour.from_rgb(235, 64, 52)))
     if isinstance(error, commands.MissingPermissions):
         await ctx.send(embed = discord.Embed(description = f'** {ctx.author.name}, you do not have permissions**', color = discord.Colour.from_rgb(235, 64, 52)))
+    if isinstance(error, commands.CommandOnCooldown):
+        retry_after = str(datetime.timedelta(seconds=error.retry_after)).split('.')[0]
+        await ctx.send(f'**Yooo! Calm down, you can retry after {retry_after} seconds**')
     
 @bot.event
 async def on_member_join(member):
@@ -120,9 +200,8 @@ async def color(ctx):
     await ctx.send(embed=endEmbed)
 
 
-
 @bot.command()
-async def help(ctx, arg=None):
+async def help(ctx, arg : str = None):
     if arg == None:
         embed=discord.Embed(title="**Unable commands:**", description="You can get more detailed help about each command by entering its name. \n For example: `help neural networks`", color=0x6603fc)
         embed.add_field(name="Neural Networks 🧠", value="`dalle` `deepdream` `imagemix` `color`", inline=False)
@@ -146,7 +225,10 @@ async def imagemix(ctx):
     await ctx.send(embed=endEmbed)
 
 
-
+@bot.command()
+@commands.cooldown(1, 300, commands.BucketType.user)
+async def carlos(ctx):
+    await ctx.send(random.choice(open('training.txt').readlines()))
 
 @bot.command()
 async def rules(ctx):
@@ -160,6 +242,7 @@ async def rules(ctx):
     embed.add_field(name="⠀", value="`7.` Все члены сообщества равны в исполнении правил.", inline=False)
     embed.add_field(name="⠀", value="`8.` За конфликт в чате будут наказаны все участники.", inline=False)
     embed.add_field(name="⠀", value="`9.` Запрещена провокация участников.", inline=False)
+    embed.add_field(name="⠀", value="`10.` Запрещена провокационная символика.", inline=False)
     await ctx.send(embed=embed)
 
 
@@ -169,20 +252,53 @@ async def shake(ctx, role : discord.Role):
     for rl in role.members:
         mmbrs.append(rl.mention)
     random.shuffle(mmbrs)
-    members = "```"
+    members = "`"
     for i in range(1, len(mmbrs)):
         
         if i % 2 == 0:
-            members = members + mmbrs[i] + "\n"
+            members += mmbrs[i] + "\n\n"
         else:
-            members = members + mmbrs[i] + " "
+            members += mmbrs[i] + " "
         
-    members = members + mmbrs[0]
-    members = members + "```"
+    members += mmbrs[0]
+    members += "`"
 
     await ctx.send(members)
 
 
+@bot.command()
+async def shakehm(ctx, role : discord.Role, channel : discord.TextChannel, language : str):
+    mmbrs = []
+    for rl in role.members:
+        mmbrs.append(rl.mention)
+    random.shuffle(mmbrs)
+
+    members = "`"
+    for i in range(1, len(mmbrs)):
+        
+        if i % 2 == 0:
+            members += mmbrs[i] + "\n\n"
+        else:
+            members += mmbrs[i] + " "
+        
+    members += mmbrs[0]
+    members += "`"
+
+    await ctx.send(members)
+
+    members = "`"
+    for i in range(1, len(mmbrs)):
+        
+        if i % 2 == 0:
+            members += mmbrs[i] + f" <#{channel.id}> {language}\n\n"
+        else:
+            members += "!hangman "
+            members += mmbrs[i] + " "
+        
+    members += mmbrs[0]
+    members += f" <#{channel.id}> {language}`"
+
+    await ctx.send(members)
 
 
 
@@ -239,6 +355,11 @@ async def removerole(ctx, user : discord.Member, role : discord.Role):
         await ctx.send(embed=remrole)
 
 
+@bot.command()
+async def choose(ctx, member1 : discord.Member, member2 : discord.Member):
+    members = [member1.name, member2.name]
+    await ctx.send(f"Winner: {random.choice(members)}")
+
 
 @bot.command(pass_context = True)
 @commands.has_permissions(manage_messages=True)
@@ -250,11 +371,16 @@ async def clear (ctx, amount = 0):
         nonpurg.set_author(name=f"Staff: {ctx.author.name}", icon_url=av)
         await ctx.send(embed=nonpurg)
     elif amount > 0:
-        await ctx.message.delete()
-        purg = discord.Embed(title=f"{amount} messages deleted", color = discord.Colour.from_rgb(51, 245, 84))
-        purg.set_author(name=f"Staff: {ctx.author.name}", icon_url=av)
-        await ctx.channel.purge(limit = amount)
-        await ctx.send(embed=purg)
+        if amount > 500:
+            nonpurg = discord.Embed(title = "Please enter a valid number", color = discord.Colour.from_rgb(235, 64, 52))
+            nonpurg.set_author(name=f"Staff: {ctx.author.name}", icon_url=av)
+            await ctx.send(embed=nonpurg)
+        else:
+            await ctx.message.delete()
+            purg = discord.Embed(title=f"{amount} messages deleted", color = discord.Colour.from_rgb(51, 245, 84))
+            purg.set_author(name=f"Staff: {ctx.author.name}", icon_url=av)
+            await ctx.channel.purge(limit = amount)
+            await ctx.send(embed=purg)
 
 
 @bot.command()
@@ -360,8 +486,8 @@ async def dm(ctx, user: discord.Member, *, message:str):
 
 @bot.command()
 async def guilds(ctx):
-    if ctx.author.id == 591203412385988609:
-        await ctx.send(bot.guilds)
+    for guild in bot.guilds:
+        await ctx.send(guild)
 
 
 
@@ -590,6 +716,27 @@ async def question(ctx, question, answer, channel : discord.TextChannel, languag
                 await channel.send(f"Правильный ответ: **{answer.upper()}**\n{athor.mention}, +2 балла")
             elif language == "eng":
                 await channel.send(f"__Correct answer:__ **{answer.upper()}\n+2 scores for {athor.mention}**")
+
+
+
+
+@bot.command()
+async def shadow(ctx, member1 : discord.Member, member2 : discord.Member, channel : discord.TextChannel, *, word):
+    def check(m):
+        return m.content.lower() == word.lower()
+    embedShadow = discord.Embed(title=f"{member1.name} VS {member2.name}", color = discord.Colour.from_rgb(110, 61, 255))
+    embedShadow.set_image(url=ctx.message.attachments[0].url)
+
+    await channel.send(embed=embedShadow)
+    
+    guess = await bot.wait_for("message", check=check, timeout=100000)
+    gcu = guess.content
+    if word.lower() == gcu.lower():
+        athor = guess.author
+        await channel.send(f"Правильный ответ: **{word.upper()}**\n{athor.mention}, You won!")
+
+
+
 
 #multi commands
 @commands.has_permissions(kick_members=True)
@@ -962,7 +1109,7 @@ async def rr(ctx, member : discord.Member, amount : amount_converter = None):
         await ctx.send(embed=rrEmbed)
         return False
     elif users[str(user.id)]["Wallet"] < 5000:
-        rrEmbed = discord.Embed(color = discord.Colour.from_rgb(232, 56, 56), title=f"You don't have <:dogecoin:998652603011444836> 10000 coins")
+        rrEmbed = discord.Embed(color = discord.Colour.from_rgb(232, 56, 56), title=f"You don't have <:dogecoin:998652603011444836> 5000 coins")
         rrEmbed.set_author(name=ctx.author.name, icon_url=ctx.author.avatar)
         await ctx.send(embed=rrEmbed)
         return False
@@ -1048,6 +1195,57 @@ async def leaderboard(ctx,x: int = 10):
             index += 1
     await ctx.send(embed=em)
 
-    
+
+
+@bot.command()
+async def gcea(ctx, member1 : discord.Member = "None", member2 : discord.Member = "None",
+                    member3 : discord.Member = "None", member4 : discord.Member = "None", member5 : discord.Member = "None",
+                    member6 : discord.Member = "None", member7 : discord.Member = "None", member8 : discord.Member = "None",
+                    member9 : discord.Member = "None", member10 : discord.Member = "None", member11 : discord.Member = "None",
+                    member12 : discord.Member = "None", member13 : discord.Member = "None", member14 : discord.Member = "None",
+                    member15 : discord.Member = "None", member16 : discord.Member = "None"):
+
+    members = []
+    av = ctx.author.avatar
+    if member1 != "None":
+        members.append(member1.id)
+    if member2 != "None":
+        members.append(member2.id)
+    if member3 != "None":
+        members.append(member3.id)
+    if member4 != "None":
+        members.append(member4.id)
+    if member5 != "None":
+        members.append(member5.id)
+    if member6 != "None":
+        members.append(member6.id)
+    if member7 != "None":
+        members.append(member7.id)
+    if member8 != "None":
+        members.append(member8.id)
+    if member9 != "None":
+        members.append(member9.id)
+    if member10 != "None":
+        members.append(member10.id)
+    if member11 != "None":
+        members.append(member11.id)
+    if member12 != "None":
+        members.append(member12.id)
+    if member13 != "None":
+        members.append(member13.id)
+    if member14 != "None":
+        members.append(member14.id)
+    if member15 != "None":
+        members.append(member15.id)
+    if member16 != "None":
+        members.append(member16.id)
+
+    members2 = []
+    for i in range(1, len(members)):
+        if i % 2 == 0:
+            pass
+        else:
+            members2.append(members[i])
+
 
 bot.run(TOKEN)
